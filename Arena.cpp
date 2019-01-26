@@ -415,6 +415,16 @@ inline string EmptyPipe(const int fd){
     return out;
 }
 
+bool ValidStoiArgument(const string &s){
+    try{
+        stoi(s);
+        return true;
+    }
+    catch(...){
+        return false;
+    }
+}
+
 bool IsValidMove(const state &S,const AI &Bot,const string &Move){
 	stringstream ss(Move);
 	for(int i=0;i<2;++i){
@@ -426,6 +436,9 @@ bool IsValidMove(const state &S,const AI &Bot,const string &Move){
 		if(!(ss2 >> target >> thrust)){
 			return false;
 		}
+        if(thrust!="SHIELD" && thrust!="BOOST" && !ValidStoiArgument(thrust)){
+            return false;
+        }
 	}
 	return true;
 }
