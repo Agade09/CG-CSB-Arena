@@ -77,8 +77,8 @@ struct vec{
         y*=a;
     }
     inline void round_vec(){
-    	x=round(x);
-    	y=round(y);
+        x=round(x);
+        y=round(y);
     }
 };
 
@@ -108,9 +108,9 @@ struct action{
 };
 
 struct state{
-	array<pod,N*2> p;//runner and then blocker
-	array<int,N> timeout;
-	Map C;
+    array<pod,N*2> p;//runner and then blocker
+    array<int,N> timeout;
+    Map C;
 };
 
 struct collision{
@@ -218,9 +218,9 @@ inline double Angle_Sum(const double a,const double b)noexcept{
 }
 
 inline double Angle(const vec &d){
-	if(d.x==0 && d.y==0){
-		return 0;//Avoid domain error
-	}
+    if(d.x==0 && d.y==0){
+        return 0;//Avoid domain error
+    }
     return (atan2(d.y,d.x)+M_PI)/DegToRad;//Returns radians [0,360]
 }
 
@@ -251,12 +251,12 @@ void is_colliding(const pod &a,const pod &b,const int idx_a,const int idx_b,cons
     if(RV<0 && det>=0){
         double t{T-(RV+sqrt(det))/V2};
         if(t<1){//Margin from pb4 to handle pod overlap
-        	if(tests && t<-0.1){
-        		cerr << "Negative time collision at time " << t << " between pods " << idx_a << " and " << idx_b << endl;
-        		cerr << "Pos: " << a.r << " " << b.r << " Pods are " << (a.r-b.r).norm() << " apart." << endl;
-        		cerr << "Vel: " << a.v << " " << b.v << endl;
+            if(tests && t<-0.1){
+                cerr << "Negative time collision at time " << t << " between pods " << idx_a << " and " << idx_b << endl;
+                cerr << "Pos: " << a.r << " " << b.r << " Pods are " << (a.r-b.r).norm() << " apart." << endl;
+                cerr << "Vel: " << a.v << " " << b.v << endl;
                 throw(0);
-        	}
+            }
             /*
             cerr << "Collisiong between " << idx_a << " and " << idx_b << " planned at time " << t << " pods are currently " << (a.r-b.r).norm() << " apart" << endl;
             cerr << "Pos: " << a.r << " " << b.r << " Pods are " << (a.r-b.r).norm() << " apart. R: " << R << endl;
@@ -293,7 +293,7 @@ template <bool is_coll> void Simulation_Step(const collision &c,state &S,list<co
     T=c.t;
     if(is_coll){
         if(c.b!=-1){//Pod collision
-        	//cerr << "Collision at time " << T << " between " << c.a << " and " << c.b << endl;
+            //cerr << "Collision at time " << T << " between " << c.a << " and " << c.b << endl;
             C.remove_if([&](const collision &col){return col.a==c.a || col.b==c.a || col.a==c.b || col.b==c.b;});
             pod &a=S.p[c.a],&b=S.p[c.b];
             vec n=b.r-a.r,v_rel=b.v-a.v;
@@ -303,12 +303,12 @@ template <bool is_coll> void Simulation_Step(const collision &c,state &S,list<co
             a.v+=f/m_a;
             double impulse{f.norm()};
             if(impulse<120){
-            	if(tests && impulse==0){
-	            	cerr << "Warning: Impulse is 0, division would crash" << endl;
-	            	cerr << "n: " << n << " v_rel: " << v_rel << " projection: " << projection << " Inv_n_norm2: " << Inv_n_norm2 << " mu: " << mu << endl;
-	            	f=n*sqrt(Inv_n_norm2);
-	            	impulse=1;
-	            }
+                if(tests && impulse==0){
+                    cerr << "Warning: Impulse is 0, division would crash" << endl;
+                    cerr << "n: " << n << " v_rel: " << v_rel << " projection: " << projection << " Inv_n_norm2: " << Inv_n_norm2 << " mu: " << mu << endl;
+                    f=n*sqrt(Inv_n_norm2);
+                    impulse=1;
+                }
                 f*=120/impulse;
             }
             b.v-=f/m_b;
@@ -341,7 +341,7 @@ void Simulate_Pod_Move(pod &p,const action &m){
         }
     }   
     else{//Shield
-    	p.shield_cd=4;
+        p.shield_cd=4;
     }
 }
 
@@ -365,7 +365,7 @@ template <bool verbose> int Simulate(state &S,const array<action,2> &MyMove,cons
         collision first=*min_element(C.begin(),C.end(),[](const collision &a,const collision &b){return a.t<b.t;});
         Simulation_Step<true>(first,S,C,T);
         if(first.b!=-1){
-        	++collisions;
+            ++collisions;
         }
     }
     Simulation_Step<false>(collision{1,-1,-1},S,C,T);
@@ -376,30 +376,30 @@ template <bool verbose> int Simulate(state &S,const array<action,2> &MyMove,cons
         p.shield_cd=max(0,p.shield_cd-1);
     }
     for(int &t:S.timeout){
-    	--t;
+        --t;
     }
     if(tests){
-    	for(int i=0;i<S.p.size();++i){
-    		for(int j=i+1;j<S.p.size();++j){
-    			const double dist2{(S.p[i].r-S.p[j].r).norm2()};
-    			if(dist2<pow(2*Pod_Radius-25,2)){
-    				cerr << "Warning: Pods " << i << " and " << j << " are " << sqrt(dist2) << " apart, in " << S.p[i].r << " and " << S.p[j].r << endl;
-    			}
-    		}
-    	}
+        for(int i=0;i<S.p.size();++i){
+            for(int j=i+1;j<S.p.size();++j){
+                const double dist2{(S.p[i].r-S.p[j].r).norm2()};
+                if(dist2<pow(2*Pod_Radius-25,2)){
+                    cerr << "Warning: Pods " << i << " and " << j << " are " << sqrt(dist2) << " apart, in " << S.p[i].r << " and " << S.p[j].r << endl;
+                }
+            }
+        }
     }
     return collisions;
 }
 
 inline Map Generate_Map(default_random_engine &generator)noexcept{
-	uniform_int_distribution<int> Map_Distrib(0,Maps.size()-1);
-	Map C{Maps[Map_Distrib(generator)]};
-	uniform_int_distribution<int> Rotate_Distrib(0,C.size()-1),Delta_Distrib(-30,30);
-	rotate(C.begin(),C.begin()+Rotate_Distrib(generator),C.end());
-	for(vec &cp:C){
-		cp+=vec{static_cast<double>(Delta_Distrib(generator)),static_cast<double>(Delta_Distrib(generator))};
-	}
-	return C;
+    uniform_int_distribution<int> Map_Distrib(0,Maps.size()-1);
+    Map C{Maps[Map_Distrib(generator)]};
+    uniform_int_distribution<int> Rotate_Distrib(0,C.size()-1),Delta_Distrib(-30,30);
+    rotate(C.begin(),C.begin()+Rotate_Distrib(generator),C.end());
+    for(vec &cp:C){
+        cp+=vec{static_cast<double>(Delta_Distrib(generator)),static_cast<double>(Delta_Distrib(generator))};
+    }
+    return C;
 }
 
 inline string EmptyPipe(const int fd){
@@ -426,21 +426,21 @@ bool ValidStoiArgument(const string &s){
 }
 
 bool IsValidMove(const state &S,const AI &Bot,const string &Move){
-	stringstream ss(Move);
-	for(int i=0;i<2;++i){
-		string line;
-		getline(ss,line);
-		stringstream ss2(line);
-		vec target;
-		string thrust;
-		if(!(ss2 >> target >> thrust)){
-			return false;
-		}
+    stringstream ss(Move);
+    for(int i=0;i<2;++i){
+        string line;
+        getline(ss,line);
+        stringstream ss2(line);
+        vec target;
+        string thrust;
+        if(!(ss2 >> target >> thrust)){
+            return false;
+        }
         if(thrust!="SHIELD" && thrust!="BOOST" && !ValidStoiArgument(thrust)){
             return false;
         }
-	}
-	return true;
+    }
+    return true;
 }
 
 string GetMove(const state &S,AI &Bot,const int turn){
@@ -457,33 +457,33 @@ string GetMove(const state &S,AI &Bot,const int turn){
 }
 
 action StringToAction(const string &mv_str,const pod &p,const int turn){
-	stringstream ss(mv_str);
-	action mv;
-	string thrust_str;
-	vec target;
-	ss >> target >> thrust_str;
-	mv.thrust=thrust_str=="BOOST"?650:thrust_str=="SHIELD"?-1:stoi(thrust_str);
-	double desired_angle{Angle(target-p.r)};
-	const double angle_given{turn==1?desired_angle:Closest_Angle(p.angle,desired_angle)};
-	mv.delta_angle=Angular_Distance(angle_given,p.angle);
-	if(tests && turn>1 && abs(mv.delta_angle)>18+1e-3){
-		cerr << "Error: Delta angle : " << mv.delta_angle << endl;
-		cerr << "Desired: " << desired_angle << " Current: " << p.angle << " Given: " << angle_given << endl;
-	}
-	return mv;
+    stringstream ss(mv_str);
+    action mv;
+    string thrust_str;
+    vec target;
+    ss >> target >> thrust_str;
+    mv.thrust=thrust_str=="BOOST"?650:thrust_str=="SHIELD"?-1:stoi(thrust_str);
+    double desired_angle{Angle(target-p.r)};
+    const double angle_given{turn==1?desired_angle:Closest_Angle(p.angle,desired_angle)};
+    mv.delta_angle=Angular_Distance(angle_given,p.angle);
+    if(tests && turn>1 && abs(mv.delta_angle)>18+1e-3){
+        cerr << "Error: Delta angle : " << mv.delta_angle << endl;
+        cerr << "Desired: " << desired_angle << " Current: " << p.angle << " Given: " << angle_given << endl;
+    }
+    return mv;
 }
 
 array<action,2> StringToAction(const string &mv_str,const state &S,const int player_id,const int turn){
-	array<action,2> Actions;
-	stringstream ss(mv_str);
-	for(int i=0;i<N;++i){
-		string mv_pod_str;
-		getline(ss,mv_pod_str);
-		Actions[i]=StringToAction(mv_pod_str,S.p[player_id*2+i],turn);
-		//cerr << mv_pod_str << endl;
-		//cerr << Actions[i].thrust << " " << Actions[i].delta_angle << endl;
-	}
-	return Actions;
+    array<action,2> Actions;
+    stringstream ss(mv_str);
+    for(int i=0;i<N;++i){
+        string mv_pod_str;
+        getline(ss,mv_pod_str);
+        Actions[i]=StringToAction(mv_pod_str,S.p[player_id*2+i],turn);
+        //cerr << mv_pod_str << endl;
+        //cerr << Actions[i].thrust << " " << Actions[i].delta_angle << endl;
+    }
+    return Actions;
 }
 
 inline bool Has_Won(const array<AI,N> &Bot,const int idx)noexcept{
@@ -508,57 +508,57 @@ inline bool All_Dead(const array<AI,N> &Bot)noexcept{
 }
 
 int Play_Game(const array<string,N> &Bot_Names,const Map &C,const array<array<vec,2>,N> &Spawns){
-	array<AI,N> Bot;
-	state S;
-	S.C=C;
-	for(int i=0;i<N;++i){
-		Bot[i].id=i;
-		Bot[i].name=Bot_Names[i];
-		S.timeout[i]=100;
-		StartProcess(Bot[i]);
-		for(int j=0;j<2;++j){
-			pod &p{S.p[i*2+j]};
-			p.r=Spawns[i][j];
-			p.v=vec{0,0};
-			p.lap=0;
-			p.next=1;
-			p.shield_cd=0;
-			p.angle=Angle(S.C[1]-p.r);
-		}
-	}
-	int turn{0};
-	//Feed first turn inputs
-	for(AI &b:Bot){
-		stringstream ss;
-		ss << N_L << " " << C.size() << endl;
-		for(const vec &cp:C){
-			ss << cp << endl;
-		}
-		b.Feed_Inputs(ss.str().c_str());
-	}
-	while(++turn>0){
+    array<AI,N> Bot;
+    state S;
+    S.C=C;
+    for(int i=0;i<N;++i){
+        Bot[i].id=i;
+        Bot[i].name=Bot_Names[i];
+        S.timeout[i]=100;
+        StartProcess(Bot[i]);
+        for(int j=0;j<2;++j){
+            pod &p{S.p[i*2+j]};
+            p.r=Spawns[i][j];
+            p.v=vec{0,0};
+            p.lap=0;
+            p.next=1;
+            p.shield_cd=0;
+            p.angle=Angle(S.C[1]-p.r);
+        }
+    }
+    int turn{0};
+    //Feed first turn inputs
+    for(AI &b:Bot){
+        stringstream ss;
+        ss << N_L << " " << C.size() << endl;
+        for(const vec &cp:C){
+            ss << cp << endl;
+        }
+        b.Feed_Inputs(ss.str().c_str());
+    }
+    while(++turn>0){
         //cerr << "Turn " << turn << endl;
-		array<array<action,2>,N> Actions_Played;
-		for(int id=0;id<N;++id){
-			if(Bot[id].alive()){
-				//Feed turn inputs
-				stringstream ss;
-				for(int j=0;j<2*N;++j){
-					const int pod_idx{static_cast<int>((id*2+j)%S.p.size())};
-					ss << S.p[pod_idx].r << " " << S.p[pod_idx].v << " " << round(S.p[pod_idx].angle) << " " << S.p[pod_idx].next << endl;
-				}
-				try{
-					Bot[id].Feed_Inputs(ss.str().c_str());
-					string out{GetMove(S,Bot[id],turn)};
-					Actions_Played[id]=StringToAction(out,S,id,turn);
-					string err_str{EmptyPipe(Bot[id].errPipe)};
-	                if(Debug_AI){
-	                    ofstream err_out("log.txt",ios::app);
-	                    err_out << err_str << endl;
-	                }
-	            }
-	            catch(int ex){
-	            	if(ex==1){//Timeout
+        array<array<action,2>,N> Actions_Played;
+        for(int id=0;id<N;++id){
+            if(Bot[id].alive()){
+                //Feed turn inputs
+                stringstream ss;
+                for(int j=0;j<2*N;++j){
+                    const int pod_idx{static_cast<int>((id*2+j)%S.p.size())};
+                    ss << S.p[pod_idx].r << " " << S.p[pod_idx].v << " " << round(S.p[pod_idx].angle) << " " << S.p[pod_idx].next << endl;
+                }
+                try{
+                    Bot[id].Feed_Inputs(ss.str().c_str());
+                    string out{GetMove(S,Bot[id],turn)};
+                    Actions_Played[id]=StringToAction(out,S,id,turn);
+                    string err_str{EmptyPipe(Bot[id].errPipe)};
+                    if(Debug_AI){
+                        ofstream err_out("log.txt",ios::app);
+                        err_out << err_str << endl;
+                    }
+                }
+                catch(int ex){
+                    if(ex==1){//Timeout
                         cerr << "Loss by Timeout of AI " << Bot[id].id << " name: " << Bot[id].name << endl;
                     }
                     else if(ex==3){
@@ -571,60 +571,60 @@ int Play_Game(const array<string,N> &Bot_Names,const Map &C,const array<array<ve
                         cerr << "AI " << Bot[id].name << " died before being able to give it inputs" << endl;
                     }
                     Bot[id].stop(turn);
-	            }
-			}
-		}
-		for(int id=0;id<N;++id){
-			if(S.timeout[id]<=0){
-				Bot[id].stop(turn);
-			}
-		}
-		if(All_Dead(Bot)){
+                }
+            }
+        }
+        for(int id=0;id<N;++id){
+            if(S.timeout[id]<=0){
+                Bot[id].stop(turn);
+            }
+        }
+        if(All_Dead(Bot)){
             return -1;//Draw
         }
         else{
-        	for(int i=0;i<2;++i){
-        		if(Has_Won(Bot,i)){
-        			return i;
-        		}
-        	}
+            for(int i=0;i<2;++i){
+                if(Has_Won(Bot,i)){
+                    return i;
+                }
+            }
         }
-		Simulate<false>(S,Actions_Played[0],Actions_Played[1]);
+        Simulate<false>(S,Actions_Played[0],Actions_Played[1]);
         array<bool,2> Finished_Race{false,false};
         for(int i=0;i<N;++i){
-        	for(int j=0;j<2;++j){
-        		if(S.p[i*N+j].lap==3){
-        			Finished_Race[i]=true;
-        		}
-        	}
+            for(int j=0;j<2;++j){
+                if(S.p[i*N+j].lap==3){
+                    Finished_Race[i]=true;
+                }
+            }
         }
         if(Finished_Race[0] || Finished_Race[1]){
-        	return Finished_Race[0]==Finished_Race[1]?-1:Finished_Race[0]?0:1;
+            return Finished_Race[0]==Finished_Race[1]?-1:Finished_Race[0]?0:1;
         }
-	}
-	throw(0);
+    }
+    throw(0);
 }
 
 int Play_Round(const array<string,N> &Bot_Names){
-	Map C=Generate_Map(generator);
-	array<array<vec,2>,N> Spawns;
-	//Spawn generation
-	vec CP0_CP1{C[1]-C[0]};
-	CP0_CP1.normalize();
-	vec orth{CP0_CP1.y,-CP0_CP1.x};
-	for(int i=0;i<N;++i){
-		const int displacement{((i==0?1:3)*(Pod_Radius+100))};
-		Spawns[i][0]=C[0]+orth*displacement;
-		Spawns[i][1]=C[0]-orth*displacement;
-		Spawns[i][0].round_vec();
-		Spawns[i][1].round_vec();
-	}
-	array<int,N> winner;
-	for(int i=0;i<N;++i){
-		winner[i]=Play_Game(Bot_Names,C,Spawns);
-		rotate(Spawns.begin(),Spawns.begin()+1,Spawns.end());
-	}
-	return winner[0]==winner[1]?winner[0]:-1;
+    Map C=Generate_Map(generator);
+    array<array<vec,2>,N> Spawns;
+    //Spawn generation
+    vec CP0_CP1{C[1]-C[0]};
+    CP0_CP1.normalize();
+    vec orth{CP0_CP1.y,-CP0_CP1.x};
+    for(int i=0;i<N;++i){
+        const int displacement{((i==0?1:3)*(Pod_Radius+100))};
+        Spawns[i][0]=C[0]+orth*displacement;
+        Spawns[i][1]=C[0]-orth*displacement;
+        Spawns[i][0].round_vec();
+        Spawns[i][1].round_vec();
+    }
+    array<int,N> winner;
+    for(int i=0;i<N;++i){
+        winner[i]=Play_Game(Bot_Names,C,Spawns);
+        rotate(Spawns.begin(),Spawns.begin()+1,Spawns.end());
+    }
+    return winner[0]==winner[1]?winner[0]:-1;
 }
 
 void StopArena(const int signum){
@@ -674,7 +674,7 @@ int main(int argc,char **argv){
             points[1]+=0.5;
         }
         else{//Win
-        	#pragma omp atomic
+            #pragma omp atomic
             points[winner]+=1;
         }
         #pragma omp atomic
