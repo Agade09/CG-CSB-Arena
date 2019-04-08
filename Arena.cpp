@@ -453,6 +453,9 @@ string GetMove(const state &S,AI &Bot,const int turn){
             out+=EmptyPipe(Bot.outPipe);
         }
     }
+    if(!IsValidMove(S,Bot,out)){
+    	throw(1);
+    }
     return out;
 }
 
