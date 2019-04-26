@@ -221,7 +221,8 @@ inline double Angle(const vec &d){
     if(d.x==0 && d.y==0){
         return 0;//Avoid domain error
     }
-    return (atan2(d.y,d.x)+M_PI)/DegToRad;//Returns radians [0,360]
+    const double rad{atan2(d.y,d.x)};// atan2() returns radians [-Pi,Pi]
+    return (rad>0?rad:2*M_PI+rad)/DegToRad;//[0,360]
 }
 
 inline double Closest_Angle(const double a,const double t){
