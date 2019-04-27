@@ -574,6 +574,9 @@ int Play_Game(const array<string,N> &Bot_Names,const Map &C,const array<array<ve
                     else if(ex==5){
                         cerr << "AI " << Bot[id].name << " died before being able to give it inputs" << endl;
                     }
+                    else{
+                        cerr << "AI " << Bot[id].name << " stopped after throw int " << ex << endl;
+                    }
                     Bot[id].stop(turn);
                 }
             }
@@ -618,7 +621,7 @@ int Play_Game(const array<string,N> &Bot_Names,const Map &C,const array<array<ve
     return -1;
 }
 
-int Play_Round(const array<string,N> &Bot_Names){
+double Play_Round(const array<string,N> &Bot_Names){
     Map C=Generate_Map(generator);
     array<array<vec,2>,N> Spawns;
     //Spawn generation
@@ -637,7 +640,16 @@ int Play_Round(const array<string,N> &Bot_Names){
         winner[i]=Play_Game(Bot_Names,C,Spawns);
         rotate(Spawns.begin(),Spawns.begin()+1,Spawns.end());
     }
-    return winner[0]==winner[1]?winner[0]:-1;
+    double points{0};
+    for(const int &win:winner){
+        if(win==-1){
+            points+=0.5;
+        }
+        else if(win==0){
+            points+=1.0;
+        }
+    }
+    return points;
 }
 
 void StopArena(const int signum){
@@ -677,25 +689,17 @@ int main(int argc,char **argv){
     array<double,2> points{0,0};
     #pragma omp parallel num_threads(N_Threads) shared(games,points,Bot_Names)
     while(!stop){
-        const int winner{Play_Round(Bot_Names)};
-        if(winner==-1){//Draw
-            #pragma omp atomic
-            ++draws;
-            #pragma omp atomic
-            points[0]+=0.5;
-            #pragma omp atomic
-            points[1]+=0.5;
-        }
-        else{//Win
-            #pragma omp atomic
-            points[winner]+=1;
-        }
+        const double player_0_points{Play_Round(Bot_Names)};
         #pragma omp atomic
-        games+=1;
-        double p{static_cast<double>(points[0])/games};
-        double sigma{sqrt(p*(1-p)/games)};
-        double better{0.5+0.5*erf((p-0.5)/(sqrt(2)*sigma))};
+        points[0]+=player_0_points;
+        #pragma omp atomic
+        points[1]+=(2-player_0_points);
+        #pragma omp atomic
+        games+=2;
+        const double p{static_cast<double>(points[0])/games};
+        const double sigma{sqrt(p*(1-p)/games)};
+        const double better{0.5+0.5*erf((p-0.5)/(sqrt(2)*sigma))};
         #pragma omp critical
-        cout << "Wins:" << setprecision(4) << 100*p << "+-" << 100*sigma << "% Rounds:" << games << " Draws:" << draws << " " << better*100 << "% chance that " << Bot_Names[0] << " is better" << endl;
+        cout << "Wins:" << setprecision(4) << 100*p << "+-" << 100*sigma << "% Rounds " << games/2 << " " << better*100 << "% chance that " << Bot_Names[0] << " is better" << endl;
     }
 }
