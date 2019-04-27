@@ -540,7 +540,7 @@ int Play_Game(const array<string,N> &Bot_Names,const Map &C,const array<array<ve
         }
         b.Feed_Inputs(ss.str().c_str());
     }
-    while(++turn>0){
+    while(turn++<500){
         //cerr << "Turn " << turn << endl;
         array<array<action,2>,N> Actions_Played;
         for(int id=0;id<N;++id){
@@ -606,7 +606,16 @@ int Play_Game(const array<string,N> &Bot_Names,const Map &C,const array<array<ve
             return Finished_Race[0]==Finished_Race[1]?-1:Finished_Race[0]?0:1;
         }
     }
-    throw(0);
+    array<int,2> Distance{numeric_limits<int>::max(),numeric_limits<int>::max()};
+    for(int i=0;i<2;++i){
+        for(int j=i*2;j<(i+1)*2;++j){
+            Distance[i]=min(Distance[i],(3-S.p[j].lap)*static_cast<int>(S.C.size())-S.p[j].next+1);
+        }
+    }
+    if(Distance[0]!=Distance[1]){
+        return Distance[0]<Distance[1]?0:1;
+    }
+    return -1;
 }
 
 int Play_Round(const array<string,N> &Bot_Names){
