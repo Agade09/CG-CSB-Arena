@@ -208,12 +208,12 @@ void StartProcess(AI &Bot){
 }
 
 inline double Angular_Distance(const double a,const double b)noexcept{
-    double diff{abs(a-b)};
+    const double diff{abs(a-b)};
     return min(diff,360-diff);
 }
 
 inline double Angle_Sum(const double a,const double b)noexcept{
-    double sum{a+b};
+    const double sum{a+b};
     return sum+(sum>360?-360:sum<0?360:0);
 }
 
@@ -230,14 +230,14 @@ inline double Closest_Angle(const double a,const double t){
         return t;
     }
     else{
-        double a1{Angle_Sum(a,18.0)},a2{Angle_Sum(a,-18.0)};
+        const double a1{Angle_Sum(a,18.0)},a2{Angle_Sum(a,-18.0)};
         return Angular_Distance(a1,t)<Angular_Distance(a2,t)?a1:a2;
     }
 }
 
 inline void Passes_Checkpoint(const pod &p,const int idx_p,const vec &CP,list<collision> &C,const double T)noexcept{
-    vec R=p.r-CP;
-    double R2{R.norm2()},RV{R*p.v},V2{p.v.norm2()},det{RV*RV-V2*(R2-pow(CP_Radius,2))};
+    const vec R{p.r-CP};
+    const double R2{R.norm2()},RV{R*p.v},V2{p.v.norm2()},det{RV*RV-V2*(R2-pow(CP_Radius,2))};
     if(RV<0.0 && det>=0.0){
         const double t{T-(RV+sqrt(det))/V2};
         if(t<1){
@@ -247,10 +247,10 @@ inline void Passes_Checkpoint(const pod &p,const int idx_p,const vec &CP,list<co
 }
 
 void is_colliding(const pod &a,const pod &b,const int idx_a,const int idx_b,const double T,list<collision> &C){
-    vec R=a.r-b.r,V=a.v-b.v;
-    double R2{R.norm2()},RV{R*V},V2{V.norm2()},det{RV*RV-V2*(R2-pow(2*Pod_Radius,2))};
+    const vec R{a.r-b.r},V{a.v-b.v};
+    const double R2{R.norm2()},RV{R*V},V2{V.norm2()},det{RV*RV-V2*(R2-pow(2*Pod_Radius,2))};
     if(RV<0 && det>=0){
-        double t{T-(RV+sqrt(det))/V2};
+        const double t{T-(RV+sqrt(det))/V2};
         if(t<1){//Margin from pb4 to handle pod overlap
             if(tests && t<-0.1){
                 cerr << "Negative time collision at time " << t << " between pods " << idx_a << " and " << idx_b << endl;
@@ -370,8 +370,7 @@ template <bool verbose> int Simulate(state &S,const array<action,2> &MyMove,cons
         }
     }
     Simulation_Step<false>(collision{1,-1,-1},S,C,T);
-    for(int i=0;i<S.p.size();++i){
-        pod &p{S.p[i]};
+    for(pod &p:S.p){
         p.r.round_vec();
         p.v=vec{trunc(0.85f*p.v.x),trunc(0.85f*p.v.y)};
         p.shield_cd=max(0,p.shield_cd-1);
