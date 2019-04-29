@@ -510,6 +510,11 @@ inline bool All_Dead(const array<AI,N> &Bot)noexcept{
     return true;
 }
 
+inline int CPs_Left(const pod &p,const Map &C){
+    const int CPs_Left_This_Lap{p.next==0?1:1+(static_cast<int>(C.size())-p.next)};
+    return (3-p.lap-1)*C.size()+CPs_Left_This_Lap;
+}
+
 int Play_Game(const array<string,N> &Bot_Names,const Map &C,const array<array<vec,2>,N> &Spawns){
     array<AI,N> Bot;
     state S;
@@ -611,7 +616,7 @@ int Play_Game(const array<string,N> &Bot_Names,const Map &C,const array<array<ve
     array<int,2> Distance{numeric_limits<int>::max(),numeric_limits<int>::max()};
     for(int i=0;i<2;++i){
         for(int j=i*2;j<(i+1)*2;++j){
-            Distance[i]=min(Distance[i],(3-S.p[j].lap)*static_cast<int>(S.C.size())-S.p[j].next+1);
+            Distance[i]=min(Distance[i],CPs_Left(S.p[j],S.C));
         }
     }
     if(Distance[0]!=Distance[1]){
