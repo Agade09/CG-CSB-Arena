@@ -468,7 +468,11 @@ action StringToAction(const string &mv_str,const pod &p,const int turn){
     mv.thrust=thrust_str=="BOOST"?650:thrust_str=="SHIELD"?-1:stoi(thrust_str);
     double desired_angle{Angle(target-p.r)};
     const double angle_given{turn==1?desired_angle:Closest_Angle(p.angle,desired_angle)};
-    mv.delta_angle=Angular_Distance(angle_given,p.angle);
+    const double angle_dist{Angular_Distance(angle_given,p.angle)};
+    mv.delta_angle=Angular_Distance(desired_angle,Angle_Sum(p.angle,angle_dist))<Angular_Distance(desired_angle,Angle_Sum(p.angle,-angle_dist))?angle_dist:-angle_dist;
+    if(tests && Angular_Distance(desired_angle,Angle_Sum(p.angle,mv.delta_angle))>1){
+        cerr << "Target to delta_angle conversion is dodgy " << setprecision(3) << p.angle  << " " << angle_given << " " << mv.delta_angle << endl;
+    }
     if(tests && turn>1 && abs(mv.delta_angle)>18+1e-3){
         cerr << "Error: Delta angle : " << mv.delta_angle << endl;
         cerr << "Desired: " << desired_angle << " Current: " << p.angle << " Given: " << angle_given << endl;
