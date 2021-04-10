@@ -542,7 +542,8 @@ int Play_Game(const array<string,N> &Bot_Names,const Map &C,const array<array<ve
     //Feed first turn inputs
     for(AI &b:Bot){
         stringstream ss;
-        ss << N_L << " " << C.size() << endl;
+        ss << N_L << endl
+        ss << C.size() << endl;
         for(const vec &cp:C){
             ss << cp << endl;
         }
