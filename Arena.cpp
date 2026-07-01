@@ -706,9 +706,14 @@ int main(int argc,char **argv){
         #pragma omp atomic
         games+=2;
         const double p{static_cast<double>(points[0])/games};
-        const double sigma{sqrt(p*(1-p)/games)};
-        const double better{0.5+0.5*erf((p-0.5)/(sqrt(2)*sigma))};
+        const double n{static_cast<double>(games)};
+        const double z{1.96};
+        const double z2{z*z};
+        const double denom{1.0 + z2/n};
+        const double center{(p + z2/(2.0*n)) / denom};
+        const double margin{z * sqrt(p*(1.0-p)/n + z2/(4.0*n*n)) / denom};
+        const double better{0.5+0.5*erf((center-0.5)/(sqrt(2.0)*margin/z))};
         #pragma omp critical
-        cout << "Wins:" << setprecision(4) << 100*p << "+-" << 100*sigma << "% Rounds " << games/2 << " " << better*100 << "% chance that " << Bot_Names[0] << " is better" << endl;
+        cout << "Wins:" << setprecision(4) << 100*center << "+-" << 100*margin << "% Rounds " << games/2 << " " << better*100 << "% chance that " << Bot_Names[0] << " is better" << endl;
     }
 }
