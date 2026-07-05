@@ -256,7 +256,6 @@ void is_colliding(const pod &a,const pod &b,const int idx_a,const int idx_b,cons
                 cerr << "Negative time collision at time " << t << " between pods " << idx_a << " and " << idx_b << endl;
                 cerr << "Pos: " << a.r << " " << b.r << " Pods are " << (a.r-b.r).norm() << " apart." << endl;
                 cerr << "Vel: " << a.v << " " << b.v << endl;
-                throw(0);
             }
             /*
             cerr << "Collisiong between " << idx_a << " and " << idx_b << " planned at time " << t << " pods are currently " << (a.r-b.r).norm() << " apart" << endl;
